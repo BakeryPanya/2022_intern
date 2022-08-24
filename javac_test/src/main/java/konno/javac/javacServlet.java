@@ -1,14 +1,19 @@
 package konno.javac;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -39,8 +44,9 @@ public class javacServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		response.setCharacterEncoding("Shift_JIS");
 		PrintWriter out = response.getWriter();
-		//ここで受け取ったデータを変換したい。
-		File file = new File("code//Main.java");
+			
+		
+		File file = new File("code/Main.java");
 		 
 		String code = request.getParameter("code");
 		
@@ -64,17 +70,25 @@ public class javacServlet extends HttpServlet {
 		try {
 			
             Runtime runtime = Runtime.getRuntime();
-            Process p = runtime.exec("cmd /c/Users/noair/OneDrive/デスクトップ/code ipconfig");
-            //この部分のパスが通らない実行処理も同様。ここさえ通れば結構望みが見えそうです。
+            Process p = runtime.exec("cmd /c javac code/Main.java");
+            //nullなんでえ
             InputStream in = p.getInputStream();
+            InputStream a = p.getErrorStream();
             BufferedReader br = new BufferedReader(new InputStreamReader(in,"Shift_JIS"));
+            BufferedReader br1 = new BufferedReader(new InputStreamReader(a,"Shift_JIS"));
             String v;
             while ((v = br.readLine()) != null) {
             	out.println(v);
             }
+            
+            while ((v = br1.readLine()) != null) {
+            	out.println(v);
+            }
+            
             int ret = p.waitFor();
             
-            System.out.println(v);
+            
+            
             out.println("return code =" + ret);
             p.destroy();
             
@@ -83,30 +97,40 @@ public class javacServlet extends HttpServlet {
             System.out.println(e);
         }
 		//実行処理
-//		try {
-//	
-//            Runtime runtime = Runtime.getRuntime();
-//            Process q = runtime.exec("cmd /c/Users/noair/OneDrive/デスクトップ/code java Main");
-//            InputStream in = q.getInputStream();
-//            BufferedReader br = new BufferedReader(new InputStreamReader(in,"Shift_JIS"));
-//            String s;
-//            while ((s = br.readLine()) != null) {
-//            	out.println(s);
-//            	System.out.println(s+"a");
-//            }
-//            int ret = q.waitFor();
-//            
-//            out.println("return code =" + ret);
-//            q.destroy();
-//            
-//           
-//        } catch (Exception e) {
-//            System.out.println(e);
-//        }
-//	
+		
+		try {
+	
+            Runtime runtime = Runtime.getRuntime();
+            Process q = runtime.exec("cmd /c java Main",null,new File("code"));
+            InputStream in = q.getInputStream();
+            InputStream b = q.getErrorStream();
+            BufferedReader br = new BufferedReader(new InputStreamReader(in,"Shift_JIS"));
+            BufferedReader br1 = new BufferedReader(new InputStreamReader(b,"Shift_JIS"));
+            String s;
+       
+            while ((s = br.readLine()) != null) {
+            	out.println(s);
+            	System.out.println(s);
+            }
+            int ret = q.waitFor();
+            
+            while ((s = br1.readLine()) != null) {
+            	out.println(s);
+            	System.out.println(s);
+            }
+            
+            
+            out.println("return code =" + ret);
+            q.destroy();
+            
+           
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+	
     
 		
-	}
+}
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
