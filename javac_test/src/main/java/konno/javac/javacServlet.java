@@ -1,10 +1,14 @@
 package konno.javac;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +24,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+
+
 
 /**
  Servlet implementation class javacServlet
@@ -44,15 +51,21 @@ public class javacServlet extends HttpServlet {
 		// TODO Auto-generated method stub
 		response.setCharacterEncoding("Shift_JIS");
 		PrintWriter out = response.getWriter();
+		
+	
+		
+		
 			
 		
 		File file = new File("code/Main.java");
+		//ファイルパスは環境毎に変わりそうなのでラズパイとかで処理するならカレントディレクトリにcodeフォルダを作ってMain.javaを置いておきましょう。
 		 
 		String code = request.getParameter("code");
+		//jspからテキストエリアのデータを格納する
 		
 		
 		try(FileOutputStream stream = new FileOutputStream(file);
-			    OutputStreamWriter writer = new OutputStreamWriter(stream);){
+			    OutputStreamWriter writer = new OutputStreamWriter(stream);){//この処理を書くことによってfcloseは自動で行われる
 
 			    // 文字列の書き込み
 			    writer.write(code);
@@ -69,64 +82,105 @@ public class javacServlet extends HttpServlet {
 		//ここからjavacコンパイル処理
 		try {
 			
+			boolean error = false;
+			boolean error1 = false;
+			
             Runtime runtime = Runtime.getRuntime();
+            
             Process p = runtime.exec("cmd /c javac code/Main.java");
-            //nullなんでえ
+            //コマンドを書く場所
+            
             InputStream in = p.getInputStream();
             InputStream a = p.getErrorStream();
+            //読み込み処理をする
+            
             BufferedReader br = new BufferedReader(new InputStreamReader(in,"Shift_JIS"));
             BufferedReader br1 = new BufferedReader(new InputStreamReader(a,"Shift_JIS"));
+            //読み込みはcmdに合わせたShift_JISで行う
+            //このBufferedReaderに通してwhileで表示処理するとうまくいく
+            
+            //コンパイル結果表示処理
             String v;
             while ((v = br.readLine()) != null) {
             	out.println(v);
-            }
+            	error = true;
+            }//コンパイル結果表示
             
             while ((v = br1.readLine()) != null) {
             	out.println(v);
-            }
+            	error1 = true; 
+            }//コンパイルエラー表示処理
             
+            //ここまでコンパイル結果表示処理
+            
+            //pの破棄をするのとreturncodeでデバッグ用処理
             int ret = p.waitFor();
-            
-            
-            
             out.println("return code =" + ret);
             p.destroy();
             
+          //実行処理 
+    		if( error==false && error1==false) {//どちらもfalseであればコンパイルエラーはでていない
+    			try {
+    				//変数のスコープ的にまだいきてたので変数名を変更します
+    	            Runtime runtime1 = Runtime.getRuntime();
+    	            Process q = runtime1.exec("cmd /c java Main",null,new File("code"));
+    	            //カレントディレクトリがなぜかデスクトップなのでデスクトップ上にcodeファイルを実装している
+    	            //この処理は自身の環境が変わるたびに変わりそうなので毎回カレントディレクトリを確認をしてパスをを通しなおす必要がある
+    	            InputStream in1 = q.getInputStream();
+    	            InputStream b = q.getErrorStream();
+    	            BufferedReader br2 = new BufferedReader(new InputStreamReader(in1,"Shift_JIS"));
+    	            BufferedReader br3 = new BufferedReader(new InputStreamReader(b,"Shift_JIS"));
+    	            //読み込み書き込み処理を行う。詳しくはコンパイル処理と変わらない
+    	            
+    	            //表示処理
+    	            String s;
+    	            StringBuilder check = new StringBuilder();
+    	       
+    	            while ((s = br2.readLine()) != null) {
+    	            	out.println(s);
+    	            	System.out.println(s);
+    	            	check.append(s);
+    	            }//実行結果の表示処理
+    	            
+    	            while ((s = br3.readLine()) != null) {
+    	            	out.println(s);
+    	            	System.out.println(s);
+    	            }//実行処理のエラー表示処理
+    	            
+    	            //ここまで表示処理
+    	            
+    	            //ここから問題とあっているかの正誤判定処理
+    	            //一旦はHelloworldで
+    	            System.out.println(check.toString());
+    	            if(check.toString() == "Helloworld\n") {
+    	            	out.println("正解");
+    	            }else {
+    	            	out.println("不正解");
+    	            }
+    	            
+    	            //正誤判定ここまで
+    	            
+    	            
+    	          //pの破棄をするのとreturncodeでデバッグ用処理
+    	            int ret1 = q.waitFor();
+    	            System.out.println("return code =" + ret1);//実行結果のreturnコードを確認
+    	            q.destroy();
+    	            
+    	           
+    	        } catch (Exception e) {
+    	            System.out.println(e);
+    	        }
+    		
+    		}else{
+    			out.println("コンパイルエラーが発生しているため動作を停止しました");
+    		}
+    		//実行処理のifはここまでです。
            
-        } catch (Exception e) {
+        } catch (Exception e) {//最後のcatch
             System.out.println(e);
         }
-		//実行処理
 		
-		try {
-	
-            Runtime runtime = Runtime.getRuntime();
-            Process q = runtime.exec("cmd /c java Main",null,new File("code"));
-            InputStream in = q.getInputStream();
-            InputStream b = q.getErrorStream();
-            BufferedReader br = new BufferedReader(new InputStreamReader(in,"Shift_JIS"));
-            BufferedReader br1 = new BufferedReader(new InputStreamReader(b,"Shift_JIS"));
-            String s;
-       
-            while ((s = br.readLine()) != null) {
-            	out.println(s);
-            	System.out.println(s);
-            }
-            int ret = q.waitFor();
-            
-            while ((s = br1.readLine()) != null) {
-            	out.println(s);
-            	System.out.println(s);
-            }
-            
-            
-            out.println("return code =" + ret);
-            q.destroy();
-            
-           
-        } catch (Exception e) {
-            System.out.println(e);
-        }
+		
 	
     
 		

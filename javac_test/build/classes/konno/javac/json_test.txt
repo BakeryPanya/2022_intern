@@ -1,0 +1,6 @@
+{
+    "user" : {
+        "id" : "A1234567",
+        "name" : "Taro Yamada"
+    }
+}
