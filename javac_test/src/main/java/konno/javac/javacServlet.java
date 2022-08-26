@@ -1,7 +1,5 @@
 package konno.javac;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -24,6 +22,13 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+
 
 
 
@@ -52,17 +57,12 @@ public class javacServlet extends HttpServlet {
 		response.setCharacterEncoding("Shift_JIS");
 		PrintWriter out = response.getWriter();
 		
-	
-		
-		
-			
-		
 		File file = new File("code/Main.java");
 		//ファイルパスは環境毎に変わりそうなのでラズパイとかで処理するならカレントディレクトリにcodeフォルダを作ってMain.javaを置いておきましょう。
 		 
 		String code = request.getParameter("code");
+		int num = Integer.parseInt(request.getParameter("number"));
 		//jspからテキストエリアのデータを格納する
-		
 		
 		try(FileOutputStream stream = new FileOutputStream(file);
 			    OutputStreamWriter writer = new OutputStreamWriter(stream);){//この処理を書くことによってfcloseは自動で行われる
@@ -76,7 +76,10 @@ public class javacServlet extends HttpServlet {
 			    e.printStackTrace();
 			}
 		
-		
+		//json ファイル読み込み
+		ObjectMapper objectMapper = new ObjectMapper();
+		JsonNode json = objectMapper.readTree(Paths.get("code/data.json").toFile());
+		System.out.println(json.toString());
 		
 		
 		//ここからjavacコンパイル処理
@@ -115,15 +118,28 @@ public class javacServlet extends HttpServlet {
             
             //pの破棄をするのとreturncodeでデバッグ用処理
             int ret = p.waitFor();
-            out.println("return code =" + ret);
+            System.out.println("return code =" + ret);
             p.destroy();
             
           //実行処理 
     		if( error==false && error1==false) {//どちらもfalseであればコンパイルエラーはでていない
     			try {
     				//変数のスコープ的にまだいきてたので変数名を変更します
+    				String ans = json.get("ans_array_" + String.valueOf(num)).get(String.valueOf(num)).get("ans").toString();
+    	            ans = ans.substring(1,ans.length()-1);
+    	            
+    	            String hint = json.get("ans_array_" + String.valueOf(num)).get(String.valueOf(num)).get("hint").toString();
+    	            hint = hint.substring(1,hint.length()-1);
+    	            
+    	            String hint_code = json.get("ans_array_" + String.valueOf(num)).get(String.valueOf(num)).get("hint_code").toString();
+    	            hint_code = hint_code.substring(1,hint_code.length()-1);
+    	            
+    	            String execute = json.get("ans_array_" + String.valueOf(num)).get(String.valueOf(num)).get("execute").toString();
+    	            execute = execute.substring(1,execute.length()-1);
+    	            
+    	            
     	            Runtime runtime1 = Runtime.getRuntime();
-    	            Process q = runtime1.exec("cmd /c java Main",null,new File("code"));
+    	            Process q = runtime1.exec(execute,null,new File("code"));
     	            //カレントディレクトリがなぜかデスクトップなのでデスクトップ上にcodeファイルを実装している
     	            //この処理は自身の環境が変わるたびに変わりそうなので毎回カレントディレクトリを確認をしてパスをを通しなおす必要がある
     	            InputStream in1 = q.getInputStream();
@@ -132,33 +148,51 @@ public class javacServlet extends HttpServlet {
     	            BufferedReader br3 = new BufferedReader(new InputStreamReader(b,"Shift_JIS"));
     	            //読み込み書き込み処理を行う。詳しくはコンパイル処理と変わらない
     	            
-    	            //表示処理
+    	          //表示処理
     	            String s;
     	            StringBuilder check = new StringBuilder();
     	       
     	            while ((s = br2.readLine()) != null) {
     	            	out.println(s);
-    	            	System.out.println(s);
     	            	check.append(s);
     	            }//実行結果の表示処理
     	            
     	            while ((s = br3.readLine()) != null) {
     	            	out.println(s);
-    	            	System.out.println(s);
     	            }//実行処理のエラー表示処理
     	            
     	            //ここまで表示処理
     	            
-    	            //ここから問題とあっているかの正誤判定処理
-    	            //一旦はHelloworldで
-    	            System.out.println(check.toString());
-    	            if(check.toString() == "Helloworld\n") {
-    	            	out.println("正解");
+    	            
+    	            //問題番号を取得0の場合は選択されていないためエラー処理となる
+    	            if(num != 0) {
+        	            
+        	            System.out.println(ans);
+        	            System.out.println("---");
+        	            System.out.println(check.toString());
+        	            if((check.toString()).contentEquals(ans) == true) {
+        	            	out.println("正解");
+        	            }else {
+        	            	out.println("出力結果が間違っています");
+        	            	if((check.toString()).contentEquals(hint) == true) {
+        	            		out.println(hint_code);
+        	            	}
+        	            	
+        	            }
+        	            
     	            }else {
-    	            	out.println("不正解");
+    	            	out.println("問題番号が選択されていません");
     	            }
     	            
+    	            
     	            //正誤判定ここまで
+    	            
+    	            
+    	            
+    	            //ここから問題とあっているかの正誤判定処理
+    	            //一旦はHelloworldで
+    	            
+    	           
     	            
     	            
     	          //pの破棄をするのとreturncodeでデバッグ用処理

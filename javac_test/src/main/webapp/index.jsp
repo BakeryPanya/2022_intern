@@ -17,6 +17,12 @@ public class Main{
     }
 }
 		</textarea>
+		<p>–â‘è”Ô†w’è</p>
+		<select name="number">
+			<option value="0">‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢</option>
+			<option value="1">–â‘è”Ô†1</option>
+			<option value="2">–â‘è”Ô†2</option>
+		</select>
 		<input type="submit"/>
 	</form>
 </body>
