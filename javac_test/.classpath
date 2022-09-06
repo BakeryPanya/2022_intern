@@ -13,9 +13,9 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
-	<classpathentry kind="lib" path="C:/Users/noair/eclipse-workspace/javac_test/lib/jackson-annotations-2.13.3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/noair/eclipse-workspace/javac_test/lib/jackson-core-2.13.3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/noair/eclipse-workspace/javac_test/lib/jackson-databind-2.13.3.jar"/>
-	<classpathentry kind="lib" path="C:/Users/noair/eclipse-workspace/javac_test/lib/json-20220320.jar"/>
+	<classpathentry kind="lib" path="C:/Users/konno_yusei/Intern/2022_intern/javac_test/lib/jackson-annotations-2.13.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/konno_yusei/Intern/2022_intern/javac_test/lib/jackson-core-2.13.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/konno_yusei/Intern/2022_intern/javac_test/lib/jackson-databind-2.13.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/konno_yusei/Intern/2022_intern/javac_test/lib/json-20220320.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
