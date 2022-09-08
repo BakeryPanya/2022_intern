@@ -1,0 +1,48 @@
+.testcase_1 {
+	text-align:center;
+	margin-top:5vw;
+	margin-left:25vw;
+	margin-right:25vw;
+	color: red;
+	border: solid;
+}
+
+
+.testcase_2 {
+	
+	text-align:center;
+	margin-top:5vw;
+	margin-left:25vw;
+	margin-right:25vw;
+	border:solid;
+}
+
+.testcase_3{
+	text-align:center;
+	margin-top:5vw;
+	margin-left:25vw;
+	margin-right:25vw;
+	border:solid;
+}
+
+.testcase_4{
+	text-align:center;
+	margin-top:5vw;
+	margin-left:25vw;
+	margin-right:25vw;
+	border:solid;
+}
+
+.testcase_5{
+	text-align:center;
+	margin-top:5vw;
+	margin-left:25vw;
+	margin-right:25vw;
+	border:solid;
+}
+
+
+body{
+	background-color:white;
+	text-align:center;
+}

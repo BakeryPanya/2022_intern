@@ -102,12 +102,12 @@ public class javacServlet extends HttpServlet {
             //コンパイル結果表示処理
             String v;
             while ((v = br.readLine()) != null) {
-            	out.println(v);
+            	session.setAttribute("compile", v);
             	error = true;
             }//コンパイル結果表示
             
             while ((v = br1.readLine()) != null) {
-            	out.println(v);
+            	session.setAttribute("compile_error", v);
             	error1 = true; 
             }//コンパイルエラー表示処理
             
@@ -116,6 +116,9 @@ public class javacServlet extends HttpServlet {
             //pの破棄をするのとreturncodeでデバッグ用処理
             int ret = p.waitFor();
             System.out.println("return code =" + ret);
+            System.out.println(error);
+            System.out.println(error1);
+            
             p.destroy();
             
             
@@ -132,6 +135,9 @@ public class javacServlet extends HttpServlet {
       		  session.setAttribute("test_num", test_num_s);
       		
       		  if( error==false && error1==false) {//どちらもfalseであればコンパイルエラーはでていない
+      			session.setAttribute("compile", "null");
+      			session.setAttribute("compile_error", "null");
+      			//コンパイルエラーが残ってしまうのを防ぐ
       			  try {
       				  //変数のスコープ的にまだいきてたので変数名を変更します
       				  for(int i=0;i<test_num;i++) {
@@ -168,12 +174,12 @@ public class javacServlet extends HttpServlet {
       					  StringBuilder check = new StringBuilder();
           	       
       					  while ((s = br2.readLine()) != null) {
-      						session.setAttribute("kekka", s);
+      						session.setAttribute("kekka"+String.valueOf(i), s);
       						  check.append(s);
       					  }//実行結果の表示処理
           	            
       					  while ((s = br3.readLine()) != null) {
-      						session.setAttribute("kekka_error", s);
+      						session.setAttribute("kekka_error"+String.valueOf(i), s);
       					  }//実行処理のエラー表示処理
           	            
       					  //ここまで表示処理 
@@ -185,15 +191,15 @@ public class javacServlet extends HttpServlet {
       						  System.out.println(ans);
       						  System.out.println("---");
       						  System.out.println(check.toString());
-      						  session.setAttribute("testcase",ans);
+      						  session.setAttribute("testcase"+String.valueOf(i),ans);
       						  if((check.toString()).contentEquals(ans) == true) {
-      							session.setAttribute("exe", "正解");
+      							session.setAttribute("exe"+String.valueOf(i), "正解");
       							  q_check+=1;
       							  
       						  }else {
-      							session.setAttribute("exe", "出力結果が間違っています");
+      							session.setAttribute("exe"+String.valueOf(i), "出力結果が間違っています");
       							  if((check.toString()).contentEquals(hint) == true) {
-      								  out.println(hint_code);
+      								  session.setAttribute("hint_code"+String.valueOf(i),hint_code);
       							  }
       						  }
               	           
@@ -243,8 +249,10 @@ public class javacServlet extends HttpServlet {
             System.out.println(e);
         }
 		
-		
+        session.setAttribute("code", code);
+        
         response.sendRedirect("exe/index2.jsp");
+       
 		
 }
 

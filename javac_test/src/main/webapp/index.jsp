@@ -1,5 +1,9 @@
 <%@ page language="java" contentType="text/html; charset=Shift_JIS"
     pageEncoding="Shift_JIS"%>
+    
+<%
+String code = (String)session.getAttribute("code");
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -9,9 +13,9 @@
 </head>
 <body>
 	<div class = "m">
-	<h1>Helloworldを出力しなさい。</h1>
+	<h2>プログラムを記述してください。</h2>
 	<form action="javacServlet">
-		<textarea rows="40" cols="75" wrap="hard" name="code">
+		<textarea rows="40" cols="75" wrap="hard" name="code" id="code">
 public class Main{
     public static void main(String[] args) {
         System.out.println(Integer.valueOf(args[0])+Integer.valueOf(args[1]));
@@ -26,7 +30,12 @@ public class Main{
 		</select>
 		<input type="submit" onclick="location.href='./exe/index2.jsp'"/>
 	</form>
-	<a href=./exe/index2.jsp>画面遷移はここをクリック！</a>
 	</div>
+	
+	<h2>問題文リスト</h2>
+		<ol>
+			<li>HelloWorldを出力してください。</li>
+			<li>足し算した結果を表示するプログラムを作成しなさい</li>
+		</ol>
 </body>
 </html>
